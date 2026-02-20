@@ -1,24 +1,82 @@
 from pydantic import BaseModel
-from fastapi import router
+from fastapi import APIRouter, HTTPException
+from passlib.context import CryptContext 
 
 from app import models, database
+from sqlalchemy.orm import Session
+from fastapi import Depends
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+router =APIRouter()
+
 
 class PasswordEncryption():
-    from datetime import datetime, timedelta
-    from jose import JWTError, jwt
-    from passlib.context import CryptContext
+    
+    SECRET_KEY: str = os.getenv("SECRET_KEY")
+    ALGORITHM: str = 'HS256'
+
+    def hash_password(self, password: str) -> str:
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        return pwd_context.hash(password)
+
+    def verify_password(self, plain_password: str, hashed_password: str) -> bool:
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        return pwd_context.verify(plain_password, hashed_password)
+
 
 class RegisterRequest(BaseModel):
-    phone_number: str
     username: str
-    hashed_password: str
+    password: str
+    phone_number: str
 
 class LoginRequest(BaseModel):
     username: str
-    hashed_password: str
+    password: str
 
+def validate_register_request(username: str, phone_number: str, db: Session = Depends(database.get_db)) -> bool:
+        #check username
+    existing_name = db.query(models.User).filter(models.User.username == username).first()
+    #check phone_number
+    existing_number = db.query(models.User).filter(models.User.phone_number == phone_number).first()
+
+    if existing_name or existing_number: return False
+    return True
+
+def validate_login_request(username: str, password: str, db: Session = Depends(database.get_db)):
+    user = db.query(models.User).filter(models.User.username == username).first()
+
+    if not user:
+        return False
+    return PasswordEncryption().verify_password(password, user.hashed_password)
 
 @router.post("/register")
-def register(data: RegisterRequest):
-    db = database.get_db()
-    db.
+def register(data: RegisterRequest, db: Session = Depends(database.get_db)):
+    to_register: RegisterRequest = data.copy()
+
+    valid_data: bool = validate_register_request(to_register.username, to_register.phone_number, db=db)
+    if not valid_data: raise HTTPException(status_code=400, detail="Username or phonenumber already exist.")
+
+    hashed_password: str = PasswordEncryption().hash_password(to_register.password)
+
+    new_user = models.User(
+        username=to_register.username,
+        phone_number=to_register.phone_number,
+        hashed_password=hashed_password
+    )
+    
+    db.add(new_user)
+    db.commit()
+
+    return {"message" : f"Welcome {new_user.username}, you registered successfully."}
+
+@router.post("/login")
+def login(data: LoginRequest, db: Session = Depends(database.get_db)):
+    to_login = data.copy()
+
+    valid_data: bool = validate_login_request(to_login.username, to_login.password, db=db)
+    if not valid_data: raise HTTPException(status_code=400, detail="Wrong username or password.")
+
+    return {"message" : f"Welcome back {to_login.username}, you logged in successfully."}

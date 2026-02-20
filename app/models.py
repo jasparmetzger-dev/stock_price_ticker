@@ -1,5 +1,5 @@
 from app.database import Base
-from sqlalchemy import  Float, String, Boolean, DateTime, ForeignKey, JSON
+from sqlalchemy import  Float, String, Boolean, DateTime, ForeignKey, JSON, UniqueConstraint
 from sqlalchemy.sql import func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -22,6 +22,7 @@ class User(Base):
 
 class Portfolio(Base):
     __tablename__ = "portfolios"
+    __table_args__ = (UniqueConstraint("user_id", "name"),)
     
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))

@@ -64,7 +64,8 @@ def register(data: RegisterRequest, db: Session = Depends(database.get_db)):
     new_user = models.User(
         username=to_register.username,
         phone_number=to_register.phone_number,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
+        is_verified=False
     )
     
     db.add(new_user)

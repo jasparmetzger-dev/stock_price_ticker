@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Ticker App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        nav {
+            background-color: #333;
+            padding: 10px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        .alert {
+            padding: 10px;
+            background-color: #f44336;
+            color: white;
+            margin-bottom: 10px;
+        }
+        .success {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#login">Login</a>
+        <a href="#portfolio">Portfolio</a>
+        <a href="#alerts">Alerts</a>
+    </nav>
+    <div class="container">
+        <h1>Stock Ticker App</h1>
+        <div id="login" class="form-group">
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            <div id="login-message"></div>
+        </div>
+        <div id="portfolio" class="form-group">
+            <h2>Portfolio</h2>
+            <form id="portfolio-form">
+                <div class="form-group">
+                    <label for="user-id">User ID</label>
+                    <input type="number" id="user-id" name="user-id" required>
+                </div>
+                <div class="form-group">
+                    <label for="portfolio-name">Portfolio Name</label>
+                    <input type="text" id="portfolio-name" name="portfolio-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="stocks">Stocks</label>
+                    <select id="stocks" name="stocks" multiple required>
+                        <option value="AAPL">AAPL</option>
+                        <option value="GOOGL">GOOGL</option>
+                        <option value="MSFT">MSFT</option>
+                        <option value="AMZN">AMZN</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="weights">Weights</label>
+                    <input type="text" id="weights" name="weights" placeholder="e.g. 0.25,0.25,0.25,0.25" required>
+                </div>
+                <button type="submit">Create Portfolio</button>
+            </form>
+            <div id="portfolio-message"></div>
+        </div>
+        <div id="alerts" class="form-group">
+            <h2>Alerts</h2>
+            <form id="alerts-form">
+                <div class="form-group">
+                    <label for="portfolio-id">Portfolio ID</label>
+                    <input type="number" id="portfolio-id" name="portfolio-id" required>
+                </div>
+                <div class="form-group">
+                    <label for="alert-price">Alert Price</label>
+                    <input type="number" id="alert-price" name="alert-price" step="0.01" required>
+                </div>
+                <button type="submit">Create Alert</button>
+            </form>
+            <div id="alerts-message"></div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('login-message').innerHTML = `<div class="success">${data.message}</div>`;
+            } else {
+                document.getElementById('login-message').innerHTML = `<div class="alert">${data.detail}</div>`;
+            }
+        });
+        document.getElementById('portfolio-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userId = document.getElementById('user-id').value;
+            const portfolioName = document.getElementById('portfolio-name').value;
+            const stocks = Array.from(document.getElementById('stocks').selectedOptions).map(option => option.value);
+            const weights = document.getElementById('weights').value.split(',').map(Number);
+            const response = await fetch('/portfolio', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user_id: userId, name: portfolioName, stocks: stocks.map((ticker, index) => ({ ticker, weight: weights[index] })) })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('portfolio-message').innerHTML = `<div class="success">${data.message}</div>`;
+            } else {
+                document.getElementById('portfolio-message').innerHTML = `<div class="alert">${data.detail}</div>`;
+            }
+        });
+        document.getElementById('alerts-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const portfolioId = document.getElementById('portfolio-id').value;
+            const alertPrice = document.getElementById('alert-price').value;
+            const response = await fetch(`/portfolio/${portfolioId}/alerts`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ price: alertPrice })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('alerts-message').innerHTML = `<div class="success">${data.message}</div>`;
+            } else {
+                document.getElementById('alerts-message').innerHTML = `<div class="alert">${data.detail}</div>`;
+            }
+        });
+    </script>
+</body>
+</html>

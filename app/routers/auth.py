@@ -45,12 +45,16 @@ def validate_register_request(username: str, phone_number: str, db: Session = De
     if existing_name or existing_number: return False
     return True
 
-def validate_login_request(username: str, password: str, db: Session = Depends(database.get_db)):
-    user = db.query(models.User).filter(models.User.username == username).first()
+def validate_login_request(username: str, password: str, db: Session = Depends(database.get_db)) -> models.User:
+    user: models.User = db.query(models.User).filter(models.User.username == username).first()
 
     if not user:
-        return False
-    return PasswordEncryption().verify_password(password, user.hashed_password)
+        return None
+    if not PasswordEncryption().verify_password(password, user.hashed_password):
+        return None
+
+    return user
+
 
 @router.post("/register")
 def register(data: RegisterRequest, db: Session = Depends(database.get_db)):
@@ -71,13 +75,17 @@ def register(data: RegisterRequest, db: Session = Depends(database.get_db)):
     db.add(new_user)
     db.commit()
 
-    return {"message" : f"Welcome {new_user.username}, you registered successfully."}
+    return {"message" : f"Registered {new_user.username} successfully."}
 
 @router.post("/login")
 def login(data: LoginRequest, db: Session = Depends(database.get_db)):
     to_login = data.copy()
 
-    valid_data: bool = validate_login_request(to_login.username, to_login.password, db=db)
-    if not valid_data: raise HTTPException(status_code=400, detail="Wrong username or password.")
+    user: models.User = validate_login_request(to_login.username, to_login.password, db=db)
+    if not user: raise HTTPException(status_code=400, detail="Wrong username or password.")
 
-    return {"message" : f"Welcome back {to_login.username}, you logged in successfully."}
+    return {
+        "message" : f"Welcome {to_login.username}, you are now logged.",
+        "username": user.username,
+        "user_id": user.id
+    }

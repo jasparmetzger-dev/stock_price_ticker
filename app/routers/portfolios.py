@@ -55,5 +55,10 @@ def make_portfolio(data: PortfolioRequest, db: Session = Depends(database.get_db
         )
         db.add(h)
     db.commit()
+    db.refresh(new_portfolio)
 
-    return {"meassage" : "portfolio created."}
+    return {
+        "meassage" : "portfolio created.",
+        "portfolio_id": new_portfolio.id,
+        "name": new_portfolio.name,
+    }

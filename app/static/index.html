@@ -7,6 +7,19 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
+        :root {
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --accent-light: #eff6ff;
+            --accent-border: #bfdbfe;
+            --success: #16a34a;
+            --success-light: #f0fdf4;
+            --success-border: #bbf7d0;
+            --error: #dc2626;
+            --error-light: #fef2f2;
+            --error-border: #fecaca;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background: #f5f5f5;
@@ -16,37 +29,61 @@
 
         nav {
             background: #fff;
-            padding: 15px 30px;
+            padding: 14px 30px;
             display: flex;
-            gap: 20px;
+            gap: 8px;
             align-items: center;
-            border-bottom: 2px solid #ddd;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
 
-        nav span.brand {
-            font-size: 1.2rem;
+        .brand {
+            font-size: 1.1rem;
             font-weight: bold;
-            color: #e94560;
+            color: var(--accent);
             margin-right: auto;
         }
 
         nav a {
             color: #555;
             text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 7px 14px;
+            border-radius: 5px;
             cursor: pointer;
-            transition: all 0.2s;
+            font-size: 0.9rem;
+            transition: all 0.15s;
         }
 
-        nav a:hover, nav a.active {
-            background: #e94560;
-            color: white;
+        nav a:hover { background: #f3f4f6; color: #111; }
+        nav a.active { background: var(--accent); color: white; }
+        nav a.hidden { display: none; }
+
+        #user-badge {
+            font-size: 0.82rem;
+            color: var(--success);
+            padding: 4px 10px;
+            background: var(--success-light);
+            border: 1px solid var(--success-border);
+            border-radius: 4px;
+            display: none;
         }
+
+        #logout-btn {
+            background: none;
+            border: 1px solid #ddd;
+            color: #666;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            display: none;
+            transition: all 0.15s;
+        }
+
+        #logout-btn:hover { border-color: var(--error); color: var(--error); }
 
         .container {
-            max-width: 600px;
+            max-width: 560px;
             margin: 40px auto;
             padding: 0 20px;
         }
@@ -54,335 +91,476 @@
         .page { display: none; }
         .page.active { display: block; }
 
-        h2 {
-            margin-bottom: 24px;
-            color: #e94560;
-            font-size: 1.5rem;
+        h2 { margin-bottom: 22px; color: #111; font-size: 1.4rem; }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
         }
 
-        .form-group {
-            margin-bottom: 16px;
-        }
+        .form-group { margin-bottom: 15px; }
 
         label {
             display: block;
-            margin-bottom: 6px;
-            color: #555;
-            font-size: 0.9rem;
+            margin-bottom: 5px;
+            color: #444;
+            font-size: 0.85rem;
             font-weight: 600;
         }
 
-        input, select {
+        input {
             width: 100%;
-            padding: 10px 12px;
+            padding: 9px 12px;
             background: #fff;
-            border: 1px solid #ccc;
+            border: 1px solid #d1d5db;
             border-radius: 6px;
             color: #222;
-            font-size: 1rem;
+            font-size: 0.95rem;
+            transition: border-color 0.15s;
         }
 
-        input:focus, select:focus {
+        input:focus {
             outline: none;
-            border-color: #e94560;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
         }
 
-        select[multiple] { height: 120px; }
+        .hint {
+            font-size: 0.78rem;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
 
-        button {
-            width: 100%;
-            background: #e94560;
+        /* Tag-style ticker display */
+        .ticker-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+            min-height: 10px;
+        }
+
+        .ticker-tag {
+            background: var(--accent-light);
+            border: 1px solid var(--accent-border);
+            color: var(--accent);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+
+        .auto-field {
+            padding: 9px 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .auto-tag {
+            font-size: 0.68rem;
+            background: var(--accent);
             color: white;
-            padding: 12px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .btn {
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            padding: 11px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 1rem;
-            margin-top: 8px;
-            transition: background 0.2s;
+            font-size: 0.95rem;
+            margin-top: 6px;
+            transition: background 0.15s;
         }
 
-        button:hover { background: #c73652; }
+        .btn:hover { background: var(--accent-hover); }
 
         .message {
-            margin-top: 16px;
-            padding: 12px;
+            margin-top: 14px;
+            padding: 11px 13px;
             border-radius: 6px;
+            font-size: 0.9rem;
             display: none;
         }
 
         .message.success {
-            background: #e6f9ee;
-            border: 1px solid #a3d9b1;
-            color: #2d7a4f;
+            background: var(--success-light);
+            border: 1px solid var(--success-border);
+            color: var(--success);
             display: block;
         }
 
         .message.error {
-            background: #fdecea;
-            border: 1px solid #f5c6c6;
-            color: #c0392b;
+            background: var(--error-light);
+            border: 1px solid var(--error-border);
+            color: var(--error);
             display: block;
         }
 
-        .card {
+        .tab-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 7px 16px;
+            border-radius: 5px;
+            border: 1px solid #e5e7eb;
             background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 24px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-        }
-
-        .hint {
-            font-size: 0.8rem;
-            color: #999;
-            margin-top: 4px;
-        }
-
-        #logged-in-as {
-            color: #2d7a4f;
+            cursor: pointer;
             font-size: 0.85rem;
-            padding: 4px 10px;
-            background: #e6f9ee;
-            border-radius: 4px;
-            display: none;
+            color: #555;
+            transition: all 0.15s;
         }
+
+        .tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .portfolio-list { margin-top: 6px; }
+
+        .portfolio-item {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .portfolio-item:hover { border-color: var(--accent); }
+        .portfolio-item.selected { border-color: var(--accent); background: var(--accent-light); }
+        .portfolio-item .port-name { font-weight: 600; font-size: 0.95rem; }
+        .portfolio-item .port-id { font-size: 0.78rem; color: #9ca3af; }
+
+        .divider { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }
     </style>
 </head>
 <body>
-    <nav>
-        <span class="brand">📈 StockTicker</span>
-        <span id="logged-in-as"></span>
-        <a onclick="showPage('register')" id="nav-register">Register</a>
-        <a onclick="showPage('login')" id="nav-login">Login</a>
-        <a onclick="showPage('portfolio')" id="nav-portfolio">Portfolio</a>
-        <a onclick="showPage('alerts')" id="nav-alerts">Alerts</a>
-    </nav>
 
-    <div class="container">
+<nav>
+    <span class="brand">📈 StockTicker</span>
+    <span id="user-badge"></span>
+    <a onclick="showPage('auth')"      id="nav-auth">Login</a>
+    <a onclick="showPage('portfolio')" id="nav-portfolio" class="hidden">Portfolio</a>
+    <a onclick="showPage('alerts')"    id="nav-alerts"    class="hidden">Alerts</a>
+    <button id="logout-btn" onclick="logout()">Logout</button>
+</nav>
 
-        <!-- REGISTER -->
-        <div id="page-register" class="page active">
-            <h2>Create Account</h2>
-            <div class="card">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="reg-username" placeholder="your_username">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="reg-password" placeholder="••••••••">
-                </div>
-                <div class="form-group">
-                    <label>Phone Number</label>
-                    <input type="text" id="reg-phone" placeholder="+1234567890">
-                </div>
-                <button onclick="register()">Register</button>
-                <div id="register-message" class="message"></div>
-            </div>
+<div class="container">
+
+    <!-- AUTH -->
+    <div id="page-auth" class="page active">
+        <div class="tab-row">
+            <div class="tab active" id="tab-login"    onclick="switchTab('login')">Login</div>
+            <div class="tab"        id="tab-register" onclick="switchTab('register')">Register</div>
         </div>
 
-        <!-- LOGIN -->
-        <div id="page-login" class="page">
-            <h2>Login</h2>
-            <div class="card">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="login-username" placeholder="your_username">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="login-password" placeholder="••••••••">
-                </div>
-                <button onclick="login()">Login</button>
-                <div id="login-message" class="message"></div>
+        <div id="form-login" class="card">
+            <h2>Welcome back</h2>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="login-username" placeholder="your_username">
             </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="login-password" placeholder="••••••••">
+            </div>
+            <button class="btn" onclick="login()">Login</button>
+            <div id="login-message" class="message"></div>
         </div>
 
-        <!-- PORTFOLIO -->
-        <div id="page-portfolio" class="page">
-            <h2>Create Portfolio</h2>
-            <div class="card">
-                <div class="form-group">
-                    <label>User ID</label>
-                    <input type="number" id="port-userid" placeholder="1">
-                    <p class="hint">Your numeric user ID from registration</p>
-                </div>
-                <div class="form-group">
-                    <label>Portfolio Name</label>
-                    <input type="text" id="port-name" placeholder="My Tech Portfolio">
-                </div>
-                <div class="form-group">
-                    <label>Stocks (hold Ctrl/Cmd to select multiple)</label>
-                    <select id="port-stocks" multiple>
-                        <option value="AAPL">AAPL - Apple</option>
-                        <option value="GOOGL">GOOGL - Google</option>
-                        <option value="MSFT">MSFT - Microsoft</option>
-                        <option value="AMZN">AMZN - Amazon</option>
-                        <option value="TSLA">TSLA - Tesla</option>
-                        <option value="NVDA">NVDA - Nvidia</option>
-                        <option value="META">META - Meta</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Weights (comma separated, must add up to 1.0)</label>
-                    <input type="text" id="port-weights" placeholder="0.5,0.5">
-                    <p class="hint">One weight per selected stock, e.g. 3 stocks → 0.33,0.33,0.34</p>
-                </div>
-                <button onclick="createPortfolio()">Create Portfolio</button>
-                <div id="portfolio-message" class="message"></div>
+        <div id="form-register" class="card" style="display:none">
+            <h2>Create account</h2>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="reg-username" placeholder="your_username">
             </div>
-        </div>
-
-        <!-- ALERTS -->
-        <div id="page-alerts" class="page">
-            <h2>Create Alert</h2>
-            <div class="card">
-                <div class="form-group">
-                    <label>Portfolio ID</label>
-                    <input type="number" id="alert-portid" placeholder="1">
-                    <p class="hint">The ID of your portfolio</p>
-                </div>
-                <div class="form-group">
-                    <label>Target Price</label>
-                    <input type="number" id="alert-price" step="0.01" placeholder="150.00">
-                </div>
-                <button onclick="createAlert()">Create Alert</button>
-                <div id="alerts-message" class="message"></div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="reg-password" placeholder="••••••••">
             </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" id="reg-phone" placeholder="+1234567890">
+            </div>
+            <button class="btn" onclick="register()">Register</button>
+            <div id="register-message" class="message"></div>
         </div>
-
     </div>
 
-    <script>
-        let currentUser = null;
+    <!-- PORTFOLIO -->
+    <div id="page-portfolio" class="page">
+        <h2>Create Portfolio</h2>
+        <div class="card">
+            <div class="form-group">
+                <label>Logged in as</label>
+                <div class="auto-field">
+                    <span class="auto-tag">AUTO</span>
+                    <span id="port-user-display">—</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Portfolio Name</label>
+                <input type="text" id="port-name" placeholder="My Tech Portfolio">
+            </div>
+            <div class="form-group">
+                <label>Tickers (comma separated)</label>
+                <input type="text" id="port-tickers" placeholder="AAPL, GOOGL, MSFT" oninput="previewTickers()">
+                <div class="ticker-tags" id="ticker-preview"></div>
+                <p class="hint">Any valid ticker — e.g. AAPL, BTC-USD, SPY, NVDA</p>
+            </div>
+            <div class="form-group">
+                <label>Weights (comma separated, must sum to 1.0)</label>
+                <input type="text" id="port-weights" placeholder="0.34, 0.33, 0.33">
+                <p class="hint">One weight per ticker in the same order</p>
+            </div>
+            <button class="btn" onclick="createPortfolio()">Create Portfolio</button>
+            <div id="portfolio-message" class="message"></div>
+        </div>
+    </div>
 
-        function showPage(name) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
-            document.getElementById('page-' + name).classList.add('active');
-            document.getElementById('nav-' + name).classList.add('active');
-        }
+    <!-- ALERTS -->
+    <div id="page-alerts" class="page">
+        <h2>Create Alert</h2>
+        <div class="card">
+            <div class="form-group">
+                <label>Select Portfolio</label>
+                <div id="portfolio-list" class="portfolio-list">
+                    <p style="color:#9ca3af;font-size:0.9rem">No portfolios yet — create one first.</p>
+                </div>
+            </div>
+            <hr class="divider">
+            <div class="form-group">
+                <label>Selected Portfolio</label>
+                <div class="auto-field">
+                    <span class="auto-tag">AUTO</span>
+                    <span id="alert-port-display">None selected</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Target Price ($)</label>
+                <input type="number" id="alert-price" step="0.01" placeholder="150.00">
+            </div>
+            <button class="btn" onclick="createAlert()">Create Alert</button>
+            <div id="alerts-message" class="message"></div>
+        </div>
+    </div>
 
-        function showMessage(id, text, type) {
-            const el = document.getElementById(id);
-            el.textContent = text;
-            el.className = 'message ' + type;
-        }
+</div>
 
-        async function register() {
-            const username = document.getElementById('reg-username').value.trim();
-            const password = document.getElementById('reg-password').value;
-            const phone_number = document.getElementById('reg-phone').value.trim();
+<script>
+    const state = {
+        user: null,
+        portfolios: [],
+        selectedPortfolioId: null,
+        selectedPortfolioName: null
+    };
 
-            if (!username || !password || !phone_number)
-                return showMessage('register-message', 'Please fill in all fields.', 'error');
+    function showPage(name) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+        document.getElementById('page-' + name).classList.add('active');
+        document.getElementById('nav-' + name).classList.add('active');
+        if (name === 'alerts') renderPortfolioList();
+    }
 
-            try {
-                const res = await fetch('/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password, phone_number })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    showMessage('register-message', data.message, 'success');
-                    setTimeout(() => showPage('login'), 1500);
-                } else {
-                    showMessage('register-message', data.detail, 'error');
-                }
-            } catch (e) {
-                showMessage('register-message', 'Server error.', 'error');
+    function switchTab(tab) {
+        document.getElementById('form-login').style.display    = tab === 'login'    ? 'block' : 'none';
+        document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+        document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+        document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+    }
+
+    function setLoggedIn(user) {
+        state.user = user;
+        document.getElementById('user-badge').textContent = '✓ ' + user.username;
+        document.getElementById('user-badge').style.display = 'inline';
+        document.getElementById('logout-btn').style.display = 'inline';
+        document.getElementById('nav-auth').classList.add('hidden');
+        document.getElementById('nav-portfolio').classList.remove('hidden');
+        document.getElementById('nav-alerts').classList.remove('hidden');
+        document.getElementById('port-user-display').textContent = user.username + '  (ID: ' + user.user_id + ')';
+    }
+
+    function logout() {
+        state.user = null;
+        state.portfolios = [];
+        state.selectedPortfolioId = null;
+        document.getElementById('user-badge').style.display = 'none';
+        document.getElementById('logout-btn').style.display = 'none';
+        document.getElementById('nav-auth').classList.remove('hidden');
+        document.getElementById('nav-portfolio').classList.add('hidden');
+        document.getElementById('nav-alerts').classList.add('hidden');
+        showPage('auth');
+    }
+
+    function showMessage(id, text, type) {
+        const el = document.getElementById(id);
+        el.textContent = text;
+        el.className = 'message ' + type;
+    }
+
+    // Live ticker tag preview as user types
+    function previewTickers() {
+        const raw = document.getElementById('port-tickers').value;
+        const tickers = raw.split(',').map(t => t.trim().toUpperCase()).filter(t => t.length > 0);
+        document.getElementById('ticker-preview').innerHTML =
+            tickers.map(t => `<span class="ticker-tag">${t}</span>`).join('');
+    }
+
+    async function register() {
+        const username     = document.getElementById('reg-username').value.trim();
+        const password     = document.getElementById('reg-password').value;
+        const phone_number = document.getElementById('reg-phone').value.trim();
+
+        if (!username || !password || !phone_number)
+            return showMessage('register-message', 'Please fill in all fields.', 'error');
+
+        try {
+            const res  = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, phone_number })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showMessage('register-message', data.message, 'success');
+                setTimeout(() => switchTab('login'), 1500);
+            } else {
+                showMessage('register-message', data.detail, 'error');
             }
-        }
+        } catch { showMessage('register-message', 'Server error.', 'error'); }
+    }
 
-        async function login() {
-            const username = document.getElementById('login-username').value.trim();
-            const password = document.getElementById('login-password').value;
+    async function login() {
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value;
 
-            if (!username || !password)
-                return showMessage('login-message', 'Please fill in all fields.', 'error');
+        if (!username || !password)
+            return showMessage('login-message', 'Please fill in all fields.', 'error');
 
-            try {
-                const res = await fetch('/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    currentUser = username;
-                    const badge = document.getElementById('logged-in-as');
-                    badge.textContent = '✓ ' + username;
-                    badge.style.display = 'inline';
-                    showMessage('login-message', data.message, 'success');
-                    setTimeout(() => showPage('portfolio'), 1500);
-                } else {
-                    showMessage('login-message', data.detail, 'error');
-                }
-            } catch (e) {
-                showMessage('login-message', 'Server error.', 'error');
+        try {
+            const res  = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setLoggedIn({ user_id: data.user_id, username: data.username });
+                showMessage('login-message', data.message, 'success');
+                setTimeout(() => showPage('portfolio'), 1200);
+            } else {
+                showMessage('login-message', data.detail, 'error');
             }
-        }
+        } catch { showMessage('login-message', 'Server error.', 'error'); }
+    }
 
-        async function createPortfolio() {
-            const user_id = parseInt(document.getElementById('port-userid').value);
-            const name = document.getElementById('port-name').value.trim();
-            const selectedOptions = Array.from(document.getElementById('port-stocks').selectedOptions);
-            const tickers = selectedOptions.map(o => o.value);
-            const weightsRaw = document.getElementById('port-weights').value.trim();
-            const weights = weightsRaw.split(',').map(w => parseFloat(w.trim()));
+    async function createPortfolio() {
+        if (!state.user) return showMessage('portfolio-message', 'You must be logged in.', 'error');
 
-            if (!name || tickers.length === 0 || !weightsRaw)
-                return showMessage('portfolio-message', 'Please fill in all fields.', 'error');
+        const name       = document.getElementById('port-name').value.trim();
+        const tickersRaw = document.getElementById('port-tickers').value.trim();
+        const weightsRaw = document.getElementById('port-weights').value.trim();
 
-            if (tickers.length !== weights.length)
-                return showMessage('portfolio-message', `You selected ${tickers.length} stocks but provided ${weights.length} weights.`, 'error');
+        if (!name || !tickersRaw || !weightsRaw)
+            return showMessage('portfolio-message', 'Please fill in all fields.', 'error');
 
-            const stocks = tickers.map((ticker, i) => ({ ticker, weight: weights[i] }));
+        const tickers = tickersRaw.split(',').map(t => t.trim().toUpperCase()).filter(t => t);
+        const weights = weightsRaw.split(',').map(w => parseFloat(w.trim()));
 
-            try {
-                const res = await fetch('/portfolio', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id, name, stocks })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    showMessage('portfolio-message', data.meassage || 'Portfolio created!', 'success');
-                } else {
-                    showMessage('portfolio-message', data.detail, 'error');
-                }
-            } catch (e) {
-                showMessage('portfolio-message', 'Server error.', 'error');
+        if (tickers.length !== weights.length)
+            return showMessage('portfolio-message',
+                `${tickers.length} tickers but ${weights.length} weights — they must match.`, 'error');
+
+        const stocks = tickers.map((ticker, i) => ({ ticker, weight: weights[i] }));
+
+        try {
+            const res  = await fetch('/portfolio', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: state.user.user_id, name, stocks })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                state.portfolios.push({ portfolio_id: data.portfolio_id, name: data.name });
+                showMessage('portfolio-message',
+                    `✓ "${data.name}" created (ID: ${data.portfolio_id})`, 'success');
+                document.getElementById('port-name').value    = '';
+                document.getElementById('port-tickers').value = '';
+                document.getElementById('port-weights').value = '';
+                document.getElementById('ticker-preview').innerHTML = '';
+            } else {
+                showMessage('portfolio-message', data.detail, 'error');
             }
+        } catch { showMessage('portfolio-message', 'Server error.', 'error'); }
+    }
+
+    function renderPortfolioList() {
+        const container = document.getElementById('portfolio-list');
+        if (state.portfolios.length === 0) {
+            container.innerHTML = '<p style="color:#9ca3af;font-size:0.9rem">No portfolios yet — create one first.</p>';
+            return;
         }
+        container.innerHTML = state.portfolios.map(p => `
+            <div class="portfolio-item ${state.selectedPortfolioId === p.portfolio_id ? 'selected' : ''}"
+                 onclick="selectPortfolio(${p.portfolio_id}, '${p.name}')">
+                <span class="port-name">${p.name}</span>
+                <span class="port-id">ID: ${p.portfolio_id}</span>
+            </div>
+        `).join('');
+    }
 
-        async function createAlert() {
-            const portfolio_id = document.getElementById('alert-portid').value;
-            const price = parseFloat(document.getElementById('alert-price').value);
+    function selectPortfolio(id, name) {
+        state.selectedPortfolioId   = id;
+        state.selectedPortfolioName = name;
+        document.getElementById('alert-port-display').textContent = name + '  (ID: ' + id + ')';
+        renderPortfolioList();
+    }
 
-            if (!portfolio_id || !price)
-                return showMessage('alerts-message', 'Please fill in all fields.', 'error');
+    async function createAlert() {
+        if (!state.selectedPortfolioId)
+            return showMessage('alerts-message', 'Please select a portfolio first.', 'error');
 
-            try {
-                const res = await fetch(`/portfolio/${portfolio_id}/alerts`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ price })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    showMessage('alerts-message', data.message, 'success');
-                } else {
-                    showMessage('alerts-message', data.detail, 'error');
-                }
-            } catch (e) {
-                showMessage('alerts-message', 'Server error.', 'error');
+        const price = parseFloat(document.getElementById('alert-price').value);
+        if (!price)
+            return showMessage('alerts-message', 'Please enter a target price.', 'error');
+
+        try {
+            const res  = await fetch(`/portfolio/${state.selectedPortfolioId}/alerts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ price })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showMessage('alerts-message',
+                    `✓ Alert set at $${price} for "${state.selectedPortfolioName}"`, 'success');
+                document.getElementById('alert-price').value = '';
+            } else {
+                showMessage('alerts-message', data.detail, 'error');
             }
-        }
-
-        showPage('register');
-    </script>
+        } catch { showMessage('alerts-message', 'Server error.', 'error'); }
+    }
+</script>
 </body>
 </html>

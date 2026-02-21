@@ -1,0 +1,22 @@
+services:
+
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: jaspa
+      POSTGRES_PASSWORD: p2319d
+      POSTGRES_DB: stock_ticker
+    ports:
+      - "5432:5432"
+  

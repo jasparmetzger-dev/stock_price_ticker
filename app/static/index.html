@@ -5,188 +5,384 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Ticker App</title>
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
+            background: #f5f5f5;
+            color: #222;
+            min-height: 100vh;
         }
+
         nav {
-            background-color: #333;
-            padding: 10px;
+            background: #fff;
+            padding: 15px 30px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            border-bottom: 2px solid #ddd;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
         }
+
+        nav span.brand {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #e94560;
+            margin-right: auto;
+        }
+
         nav a {
-            color: white;
+            color: #555;
             text-decoration: none;
-            margin-right: 10px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .form-group {
-            margin-bottom: 10px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            border: none;
+            padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
+            transition: all 0.2s;
         }
-        button:hover {
-            background-color: #555;
-        }
-        .alert {
-            padding: 10px;
-            background-color: #f44336;
+
+        nav a:hover, nav a.active {
+            background: #e94560;
             color: white;
-            margin-bottom: 10px;
         }
-        .success {
-            padding: 10px;
-            background-color: #4CAF50;
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        h2 {
+            margin-bottom: 24px;
+            color: #e94560;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            color: #222;
+            font-size: 1rem;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+
+        select[multiple] { height: 120px; }
+
+        button {
+            width: 100%;
+            background: #e94560;
             color: white;
-            margin-bottom: 10px;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+
+        button:hover { background: #c73652; }
+
+        .message {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .message.success {
+            background: #e6f9ee;
+            border: 1px solid #a3d9b1;
+            color: #2d7a4f;
+            display: block;
+        }
+
+        .message.error {
+            background: #fdecea;
+            border: 1px solid #f5c6c6;
+            color: #c0392b;
+            display: block;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .hint {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        #logged-in-as {
+            color: #2d7a4f;
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            background: #e6f9ee;
+            border-radius: 4px;
+            display: none;
         }
     </style>
 </head>
 <body>
     <nav>
-        <a href="#login">Login</a>
-        <a href="#portfolio">Portfolio</a>
-        <a href="#alerts">Alerts</a>
+        <span class="brand">📈 StockTicker</span>
+        <span id="logged-in-as"></span>
+        <a onclick="showPage('register')" id="nav-register">Register</a>
+        <a onclick="showPage('login')" id="nav-login">Login</a>
+        <a onclick="showPage('portfolio')" id="nav-portfolio">Portfolio</a>
+        <a onclick="showPage('alerts')" id="nav-alerts">Alerts</a>
     </nav>
+
     <div class="container">
-        <h1>Stock Ticker App</h1>
-        <div id="login" class="form-group">
-            <h2>Login</h2>
-            <form id="login-form">
+
+        <!-- REGISTER -->
+        <div id="page-register" class="page active">
+            <h2>Create Account</h2>
+            <div class="card">
                 <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
+                    <label>Username</label>
+                    <input type="text" id="reg-username" placeholder="your_username">
                 </div>
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
+                    <label>Password</label>
+                    <input type="password" id="reg-password" placeholder="••••••••">
                 </div>
-                <button type="submit">Login</button>
-            </form>
-            <div id="login-message"></div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="reg-phone" placeholder="+1234567890">
+                </div>
+                <button onclick="register()">Register</button>
+                <div id="register-message" class="message"></div>
+            </div>
         </div>
-        <div id="portfolio" class="form-group">
-            <h2>Portfolio</h2>
-            <form id="portfolio-form">
+
+        <!-- LOGIN -->
+        <div id="page-login" class="page">
+            <h2>Login</h2>
+            <div class="card">
                 <div class="form-group">
-                    <label for="user-id">User ID</label>
-                    <input type="number" id="user-id" name="user-id" required>
+                    <label>Username</label>
+                    <input type="text" id="login-username" placeholder="your_username">
                 </div>
                 <div class="form-group">
-                    <label for="portfolio-name">Portfolio Name</label>
-                    <input type="text" id="portfolio-name" name="portfolio-name" required>
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••">
+                </div>
+                <button onclick="login()">Login</button>
+                <div id="login-message" class="message"></div>
+            </div>
+        </div>
+
+        <!-- PORTFOLIO -->
+        <div id="page-portfolio" class="page">
+            <h2>Create Portfolio</h2>
+            <div class="card">
+                <div class="form-group">
+                    <label>User ID</label>
+                    <input type="number" id="port-userid" placeholder="1">
+                    <p class="hint">Your numeric user ID from registration</p>
                 </div>
                 <div class="form-group">
-                    <label for="stocks">Stocks</label>
-                    <select id="stocks" name="stocks" multiple required>
-                        <option value="AAPL">AAPL</option>
-                        <option value="GOOGL">GOOGL</option>
-                        <option value="MSFT">MSFT</option>
-                        <option value="AMZN">AMZN</option>
+                    <label>Portfolio Name</label>
+                    <input type="text" id="port-name" placeholder="My Tech Portfolio">
+                </div>
+                <div class="form-group">
+                    <label>Stocks (hold Ctrl/Cmd to select multiple)</label>
+                    <select id="port-stocks" multiple>
+                        <option value="AAPL">AAPL - Apple</option>
+                        <option value="GOOGL">GOOGL - Google</option>
+                        <option value="MSFT">MSFT - Microsoft</option>
+                        <option value="AMZN">AMZN - Amazon</option>
+                        <option value="TSLA">TSLA - Tesla</option>
+                        <option value="NVDA">NVDA - Nvidia</option>
+                        <option value="META">META - Meta</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="weights">Weights</label>
-                    <input type="text" id="weights" name="weights" placeholder="e.g. 0.25,0.25,0.25,0.25" required>
+                    <label>Weights (comma separated, must add up to 1.0)</label>
+                    <input type="text" id="port-weights" placeholder="0.5,0.5">
+                    <p class="hint">One weight per selected stock, e.g. 3 stocks → 0.33,0.33,0.34</p>
                 </div>
-                <button type="submit">Create Portfolio</button>
-            </form>
-            <div id="portfolio-message"></div>
+                <button onclick="createPortfolio()">Create Portfolio</button>
+                <div id="portfolio-message" class="message"></div>
+            </div>
         </div>
-        <div id="alerts" class="form-group">
-            <h2>Alerts</h2>
-            <form id="alerts-form">
+
+        <!-- ALERTS -->
+        <div id="page-alerts" class="page">
+            <h2>Create Alert</h2>
+            <div class="card">
                 <div class="form-group">
-                    <label for="portfolio-id">Portfolio ID</label>
-                    <input type="number" id="portfolio-id" name="portfolio-id" required>
+                    <label>Portfolio ID</label>
+                    <input type="number" id="alert-portid" placeholder="1">
+                    <p class="hint">The ID of your portfolio</p>
                 </div>
                 <div class="form-group">
-                    <label for="alert-price">Alert Price</label>
-                    <input type="number" id="alert-price" name="alert-price" step="0.01" required>
+                    <label>Target Price</label>
+                    <input type="number" id="alert-price" step="0.01" placeholder="150.00">
                 </div>
-                <button type="submit">Create Alert</button>
-            </form>
-            <div id="alerts-message"></div>
+                <button onclick="createAlert()">Create Alert</button>
+                <div id="alerts-message" class="message"></div>
+            </div>
         </div>
+
     </div>
+
     <script>
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const response = await fetch('/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
-            const data = await response.json();
-            if (response.ok) {
-                document.getElementById('login-message').innerHTML = `<div class="success">${data.message}</div>`;
-            } else {
-                document.getElementById('login-message').innerHTML = `<div class="alert">${data.detail}</div>`;
+        let currentUser = null;
+
+        function showPage(name) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            document.getElementById('page-' + name).classList.add('active');
+            document.getElementById('nav-' + name).classList.add('active');
+        }
+
+        function showMessage(id, text, type) {
+            const el = document.getElementById(id);
+            el.textContent = text;
+            el.className = 'message ' + type;
+        }
+
+        async function register() {
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const phone_number = document.getElementById('reg-phone').value.trim();
+
+            if (!username || !password || !phone_number)
+                return showMessage('register-message', 'Please fill in all fields.', 'error');
+
+            try {
+                const res = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, phone_number })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showMessage('register-message', data.message, 'success');
+                    setTimeout(() => showPage('login'), 1500);
+                } else {
+                    showMessage('register-message', data.detail, 'error');
+                }
+            } catch (e) {
+                showMessage('register-message', 'Server error.', 'error');
             }
-        });
-        document.getElementById('portfolio-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const userId = document.getElementById('user-id').value;
-            const portfolioName = document.getElementById('portfolio-name').value;
-            const stocks = Array.from(document.getElementById('stocks').selectedOptions).map(option => option.value);
-            const weights = document.getElementById('weights').value.split(',').map(Number);
-            const response = await fetch('/portfolio', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ user_id: userId, name: portfolioName, stocks: stocks.map((ticker, index) => ({ ticker, weight: weights[index] })) })
-            });
-            const data = await response.json();
-            if (response.ok) {
-                document.getElementById('portfolio-message').innerHTML = `<div class="success">${data.message}</div>`;
-            } else {
-                document.getElementById('portfolio-message').innerHTML = `<div class="alert">${data.detail}</div>`;
+        }
+
+        async function login() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            if (!username || !password)
+                return showMessage('login-message', 'Please fill in all fields.', 'error');
+
+            try {
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    currentUser = username;
+                    const badge = document.getElementById('logged-in-as');
+                    badge.textContent = '✓ ' + username;
+                    badge.style.display = 'inline';
+                    showMessage('login-message', data.message, 'success');
+                    setTimeout(() => showPage('portfolio'), 1500);
+                } else {
+                    showMessage('login-message', data.detail, 'error');
+                }
+            } catch (e) {
+                showMessage('login-message', 'Server error.', 'error');
             }
-        });
-        document.getElementById('alerts-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const portfolioId = document.getElementById('portfolio-id').value;
-            const alertPrice = document.getElementById('alert-price').value;
-            const response = await fetch(`/portfolio/${portfolioId}/alerts`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ price: alertPrice })
-            });
-            const data = await response.json();
-            if (response.ok) {
-                document.getElementById('alerts-message').innerHTML = `<div class="success">${data.message}</div>`;
-            } else {
-                document.getElementById('alerts-message').innerHTML = `<div class="alert">${data.detail}</div>`;
+        }
+
+        async function createPortfolio() {
+            const user_id = parseInt(document.getElementById('port-userid').value);
+            const name = document.getElementById('port-name').value.trim();
+            const selectedOptions = Array.from(document.getElementById('port-stocks').selectedOptions);
+            const tickers = selectedOptions.map(o => o.value);
+            const weightsRaw = document.getElementById('port-weights').value.trim();
+            const weights = weightsRaw.split(',').map(w => parseFloat(w.trim()));
+
+            if (!name || tickers.length === 0 || !weightsRaw)
+                return showMessage('portfolio-message', 'Please fill in all fields.', 'error');
+
+            if (tickers.length !== weights.length)
+                return showMessage('portfolio-message', `You selected ${tickers.length} stocks but provided ${weights.length} weights.`, 'error');
+
+            const stocks = tickers.map((ticker, i) => ({ ticker, weight: weights[i] }));
+
+            try {
+                const res = await fetch('/portfolio', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id, name, stocks })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showMessage('portfolio-message', data.meassage || 'Portfolio created!', 'success');
+                } else {
+                    showMessage('portfolio-message', data.detail, 'error');
+                }
+            } catch (e) {
+                showMessage('portfolio-message', 'Server error.', 'error');
             }
-        });
+        }
+
+        async function createAlert() {
+            const portfolio_id = document.getElementById('alert-portid').value;
+            const price = parseFloat(document.getElementById('alert-price').value);
+
+            if (!portfolio_id || !price)
+                return showMessage('alerts-message', 'Please fill in all fields.', 'error');
+
+            try {
+                const res = await fetch(`/portfolio/${portfolio_id}/alerts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ price })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showMessage('alerts-message', data.message, 'success');
+                } else {
+                    showMessage('alerts-message', data.detail, 'error');
+                }
+            } catch (e) {
+                showMessage('alerts-message', 'Server error.', 'error');
+            }
+        }
+
+        showPage('register');
     </script>
 </body>
 </html>

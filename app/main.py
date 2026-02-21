@@ -1,6 +1,7 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
-from app import models
 from app.routers import alerts, auth, portfolios
 from app.database import Base, engine
 
@@ -11,8 +12,9 @@ app.include_router(alerts.router)
 app.include_router(auth.router)
 app.include_router(portfolios.router)
 
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 @app.get("/")
 def root():
-    return {"status" : "running"}
+    return FileResponse("app/static/index.html")
 

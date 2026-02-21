@@ -10,11 +10,12 @@ services:
       - .env
     depends_on:
       - db
+    restart: on-failure:5
 
   db:
     image: postgres:15
     environment:
-      POSTGRES_USER: jaspa
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: p2319d
       POSTGRES_DB: stock_ticker
     ports:
